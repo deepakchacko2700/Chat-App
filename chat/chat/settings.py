@@ -175,7 +175,6 @@ CHANNEL_LAYERS = {
         "CONFIG": {
             "hosts":[{
             "address": "redis://red-ckmd0oqv7m0s738j3ka0:6379",  # "REDIS_TLS_URL"
-            "ssl_cert_reqs": None,
         }]
         },
     },
