@@ -22,7 +22,7 @@ export default function Chat() {
             }
       }
 
-  const { readyState, sendJsonMessage } = useWebSocket(user ? `${API_URL}/${conversationName}/` : null, {
+  const { readyState, sendJsonMessage } = useWebSocket(user ? `wss://fun-chat-2s6u.onrender.com/${conversationName}/` : null, {
     queryParams: {
       token: user ? user.token : "",
     },
