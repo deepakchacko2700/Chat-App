@@ -142,7 +142,7 @@ STATIC_URL = '/static/'
 
 # STATIC_ROOT = BACKEND_DIR / 'static'
 
-# STATICFILES_DIRS = [FRONTEND_DIR / 'build' / 'static']
+STATICFILES_DIRS = [FRONTEND_DIR / 'build' / 'static']
 
 # for production
 if not DEBUG:
