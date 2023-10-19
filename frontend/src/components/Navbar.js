@@ -35,7 +35,7 @@ export default function Navbar() {
                                 style={({ isActive, isPending }) => {
                                     return {
                                       fontWeight: isActive ? "550" : "",
-                                      color: isActive ? "#d4ed93" : "",
+                                      color: isActive ? "#aaccf0" : "",
                                     };
                                   }}    
                             >
@@ -50,7 +50,7 @@ export default function Navbar() {
                                 style={({ isActive, isPending }) => {
                                     return {
                                       fontWeight: isActive ? "550" : "",
-                                      color: isActive? "#d4ed93" : "",
+                                      color: isActive? "#aaccf0" : "",
                                     };
                                   }}    
                             >
@@ -67,7 +67,7 @@ export default function Navbar() {
                                     style={({ isActive, isPending }) => {
                                         return {
                                           fontWeight: isActive ? "550" : "",
-                                          color: isActive? "#d4ed93" : "",
+                                          color: isActive? "#aaccf0" : "",
                                         };
                                       }}   
                                 >

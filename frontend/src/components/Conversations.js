@@ -35,9 +35,9 @@ export function Conversations() {
               <Link to={`/chats/${createConversationName(u.username)}`}
                   key={u.username}
               >
-              <div  className='flex items-center mb-2'>
+              <div  className='flex items-center justify-left w-[50vw] sm:w-[20vw] transition-transform hover:scale-105  bg-gray-600 mb-2  rounded-md shadow shadow-stone-800'>
                 <div className="m-1 mr-2  w-10 h-10 relative flex justify-center items-center rounded-full bg-yellow-100 text-2xl font-semibold text-black uppercase">{u.username.slice(0,1)}</div>
-                <div >{u.username}</div>
+                <div className='ml-1'>{u.username}</div>
               </div>
               </Link>
             ))}

@@ -1,26 +1,51 @@
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
- 
+import useWebSocket, { ReadyState } from "react-use-websocket";
+
 import { AuthContext } from "../contexts/AuthContext";
 import {API_URL} from './Constants'
 
 
 export function ActiveConversations() {
   const { user } = useContext(AuthContext);
-  const [conversations, setActiveConversations] = useState([]);
- 
-  useEffect(() => {
-    async function fetchUsers() {
-      const res = await fetch(`${API_URL}/api/conversations/`, {
-        headers: {
-          Authorization: `Token ${user?.token}`
-        }
-      });
-      const data = await res.json();
-      setActiveConversations(data);
+  const [conversations, setConversations] = useState([]);
+  
+  const { readyState } = useWebSocket(user ? `wss://fun-chat-2s6u.onrender.com/notifications/` : null, {
+    queryParams: {
+      token: user ? user.token : ""
+    },
+    onOpen: () => {
+      console.log("Connected to Notifications!");
+    },
+    onClose: () => {
+      console.log("Disconnected from Notifications!");
+    },
+    onMessage: (e) => {
+      const data = JSON.parse(e.data);
+      // console.log(data)
+      switch (data.type) {
+        case 'unread_count':
+          // console.log(data.active_conversations)
+          setConversations(data.active_conversations)
+          break;
+        case "new_message_notification" :
+          // console.log(data.name, data.message)
+          setConversations(() => handleNewConversation(data))
+          break;
+        default:
+          console.error("Unknown message type!");
+          break;
+      }
     }
-    user && fetchUsers();
-  }, [user]);
+  });
+ 
+  const connectionStatus = {
+    [ReadyState.CONNECTING]: "Connecting",
+    [ReadyState.OPEN]: "Open",
+    [ReadyState.CLOSING]: "Closing",
+    [ReadyState.CLOSED]: "Closed",
+    [ReadyState.UNINSTANTIATED]: "Uninstantiated"
+  }[readyState];
  
   function createConversationName(username) {
     const namesAlph = [user?.username, username].sort();
@@ -44,11 +69,41 @@ export function ActiveConversations() {
     time = time.slice(0,-6) + ' ' + time.slice(-2)
     return time
     }
+  };
+
+  function handleNewConversation(data) {
+     let new_conversation_list =  conversations.map(c => {
+          if (c.other_user.username === data.name) {
+              let unread_count = c.unread_msg_count
+            return({...c, last_message: data.message, unread_msg_count: unread_count+1})
+          }
+          else {
+            return c
+          }
+     })
+    //  console.log(new_conversation_list)
+    //  temporary array holds objects with position and sort-value
+    const  mapped = new_conversation_list.map((c, i) => {
+        return ({i, timestamp: c.last_message.timestamp})
+    });
+    // sorting the mapped array in descending order containing the reduced values
+    mapped.sort((a, b) => {
+      if (Date.parse(a.timestamp) > Date.parse(b.timestamp)) {
+        return -1
+      }
+      else {
+        return 1
+      }
+    });
+    // traverse the temporary array to achieve the right order.
+    new_conversation_list = mapped.map(c => new_conversation_list[c.i]) 
+    
+    return new_conversation_list
   }
  
   return (
     <div className=" mt-10 flex flex-col items-start rounded  ">
-      {user && conversations.map((c) => (
+      {conversations[0] && conversations.map((c) => (
         <Link
           to={`/chats/${createConversationName(c.other_user.username)}`}
           key={c.other_user.username}
@@ -66,7 +121,13 @@ export function ActiveConversations() {
                 <h3 className="ml-2 text-xl font-semibold font-sans text-white">{c.other_user.username}</h3>
                 <p className="ml-4 text-sm text-white">{c.last_message?.content}</p>
               </div>
-              <p className="ml-[auto] text-sm text-white pt-2">{formatMessageTimestamp(c.last_message?.timestamp)}</p>
+              <div className="ml-[auto]">
+                <p className=" text-sm text-white pt-2">{formatMessageTimestamp(c.last_message?.timestamp)}</p>
+                { c.unread_msg_count != 0
+                    ? <div className="m-1 mr-2 ml-[auto] w-4 h-4 relative flex justify-center items-center rounded-full bg-lime-200 text-sm font-semibold text-gray-700 ">{c.unread_msg_count}</div>
+                    : null
+                  }
+              </div>
             </div>
             
           </div>

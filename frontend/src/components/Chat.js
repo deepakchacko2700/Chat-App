@@ -4,7 +4,6 @@ import { AuthContext } from "../contexts/AuthContext";
 import {useParams, useNavigate} from 'react-router-dom'
 
 import { Message } from "./Message";
-import {API_URL} from './Constants'
 
 
 export default function Chat() {
@@ -20,9 +19,10 @@ export default function Chat() {
             if(name!==user.username) {
                 from_user = name
             }
-      }
+      };
 
-  const { readyState, sendJsonMessage } = useWebSocket(user ? `wss://fun-chat-2s6u.onrender.com/${conversationName}/` : null, {
+
+  const { readyState, sendJsonMessage } = useWebSocket(user ? `wss://fun-chat-2s6u.onrender.com/chat/${conversationName}/` : null, {
     queryParams: {
       token: user ? user.token : "",
     },
@@ -41,6 +41,7 @@ export default function Chat() {
           break;
         case 'chat_message_echo':
           setMessageHistory((prev) => ([data.message ,...prev ]));
+          sendJsonMessage({ type: "read_messages" });
           break;
         case "last_50_messages":
           setMessageHistory(data.messages);
@@ -88,6 +89,14 @@ export default function Chat() {
     [ReadyState.CLOSED]: "Closed",
     [ReadyState.UNINSTANTIATED]: "Uninstantiated"
   }[readyState];
+
+  React.useEffect(() => {
+    if (connectionStatus === "Open") {
+      sendJsonMessage({
+        type: "read_messages"
+      });
+    }
+  }, [connectionStatus, sendJsonMessage]);
  
   return (
     <div >
